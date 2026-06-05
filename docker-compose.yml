@@ -14,7 +14,8 @@ services:
       - .:/var/www/service-tickets
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
     environment:
-      APP_ENV: ${APP_ENV:-dev}
+        APP_ENV: ${APP_ENV:-dev}
+        DATABASE_URL: "postgresql://app:secret@postgres:5432/service_tickets?serverVersion=16&charset=utf8"
     networks:
       - app_network
     depends_on:
@@ -76,7 +77,8 @@ services:
       - .:/var/www/service-tickets
       - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
     environment:
-      APP_ENV: ${APP_ENV:-dev}
+        APP_ENV: ${APP_ENV:-dev}
+        DATABASE_URL: "postgresql://app:secret@postgres:5432/service_tickets?serverVersion=16&charset=utf8"
     networks:
       - app_network
     depends_on:
