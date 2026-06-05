@@ -1,0 +1,21 @@
+framework:
+    messenger:
+        # Transport dla nieudanych wiadomości
+        failure_transport: failed
+
+        transports:
+            # Transport asynchroniczny — Redis
+            async: '%env(MESSENGER_TRANSPORT_DSN)%'
+            # Transport dla nieudanych wiadomości
+            failed: 'doctrine://default?queue_name=failed'
+            sync: 'sync://'
+
+        routing:
+        # Tutaj kieruj swoje klasy wiadomości do transportu async
+        # 'App\Message\YourMessage': async
+
+# when@test:
+#    framework:
+#        messenger:
+#            transports:
+#                async: 'in-memory://'
