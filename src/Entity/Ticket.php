@@ -4,12 +4,20 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Enum\TicketPriority;
 use App\Enum\TicketStatus;
 use App\Repository\TicketRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -18,11 +26,32 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
 #[ORM\Table(name: 'tickets')]
 #[ORM\HasLifecycleCallbacks]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+        new Post(
+            security: "is_granted('ROLE_ADMIN')"
+        ),
+        new Put(
+            security: "is_granted('ROLE_ADMIN') or (is_granted('ROLE_TECHNICIAN') and object.getAssignedTechnician() != null and object.getAssignedTechnician().getId() == user.getId())"
+        ),
+        new Patch(
+            security: "is_granted('ROLE_ADMIN') or (is_granted('ROLE_TECHNICIAN') and object.getAssignedTechnician() != null and object.getAssignedTechnician().getId() == user.getId())"
+        ),
+        new Delete(
+            security: "is_granted('ROLE_ADMIN')"
+        ),
+    ],
+    normalizationContext: ['groups' => ['ticket:read']],
+    denormalizationContext: ['groups' => ['ticket:write']]
+)]
 class Ticket
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['ticket:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -33,40 +62,50 @@ class Ticket
         minMessage: 'Tytuł musi mieć co najmniej {{ limit }} znaki.',
         maxMessage: 'Tytuł nie może być dłuższy niż {{ limit }} znaków.'
     )]
+    #[Groups(['ticket:read', 'ticket:write'])]
     private string $title;
 
     #[ORM\Column(type: 'text', nullable: true)]
     #[Assert\Length(max: 5000, maxMessage: 'Opis nie może być dłuższy niż {{ limit }} znaków.')]
+    #[Groups(['ticket:read', 'ticket:write'])]
     private ?string $description = null;
 
     #[ORM\Column(type: 'string', enumType: TicketPriority::class)]
     #[Assert\NotNull(message: 'Priorytet jest wymagany.')]
+    #[Groups(['ticket:read', 'ticket:write'])]
     private TicketPriority $priority;
 
     #[ORM\Column(type: 'string', enumType: TicketStatus::class)]
+    #[Groups(['ticket:read'])]
     private TicketStatus $status;
 
     #[ORM\Column(type: 'datetime_immutable')]
+    #[Groups(['ticket:read'])]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: 'datetime_immutable')]
+    #[Groups(['ticket:read'])]
     private \DateTimeImmutable $updatedAt;
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    #[Groups(['ticket:read'])]
     private ?\DateTimeImmutable $closedAt = null;
 
     #[ORM\ManyToOne(targetEntity: Technician::class, inversedBy: 'tickets')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[Groups(['ticket:read'])]
     private ?Technician $assignedTechnician = null;
 
     #[ORM\ManyToOne(targetEntity: Device::class, inversedBy: 'tickets')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Assert\NotNull(message: 'Urządzenie jest wymagane.')]
+    #[Groups(['ticket:read', 'ticket:write'])]
     private Device $device;
 
     /** @var Collection<int, TicketHistory> */
     #[ORM\OneToMany(targetEntity: TicketHistory::class, mappedBy: 'ticket', cascade: ['persist'], orphanRemoval: true)]
     #[ORM\OrderBy(['changedAt' => 'ASC'])]
+    #[Groups(['ticket:read'])]
     private Collection $history;
 
     public function __construct()
