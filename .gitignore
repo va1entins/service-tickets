@@ -24,3 +24,5 @@ Thumbs.db
 /docker/mysql/data/
 /docker/postgres/data/
 ###< Docker ###
+
+/tmp
