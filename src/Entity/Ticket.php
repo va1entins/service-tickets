@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Provider\TicketCollectionProvider;
 use App\Enum\TicketPriority;
 use App\Enum\TicketStatus;
 use App\Repository\TicketRepository;
@@ -28,7 +29,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     operations: [
-        new GetCollection(),
+        new GetCollection(
+            provider: TicketCollectionProvider::class
+        ),
         new Get(),
         new Post(
             security: "is_granted('ROLE_ADMIN')"
