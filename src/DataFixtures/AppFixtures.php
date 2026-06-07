@@ -91,7 +91,7 @@ class AppFixtures extends Fixture
         $manager->persist(new TicketHistory($ticket3, TicketStatus::NEW, TicketStatus::ASSIGNED, 'admin'));
         $manager->persist(new TicketHistory($ticket3, TicketStatus::ASSIGNED, TicketStatus::IN_PROGRESS, 'p.wisniewski@serwis.pl'));
 
-        // Ticket 4: zakończone
+        // Ticket 4: zakończone — createdAt przed closedAt
         $ticket4 = new Ticket();
         $ticket4->setTitle('Konfiguracja sieci Wi-Fi');
         $ticket4->setDescription('Brak połączenia z siecią bezprzewodową.');
@@ -99,6 +99,7 @@ class AppFixtures extends Fixture
         $ticket4->setDevice($device2);
         $ticket4->setAssignedTechnician($tech1);
         $ticket4->setStatus(TicketStatus::DONE);
+        $ticket4->setCreatedAt(new \DateTimeImmutable('-5 days'));
         $ticket4->setClosedAt(new \DateTimeImmutable('-2 days'));
         $manager->persist($ticket4);
         $manager->persist(new TicketHistory($ticket4, null, TicketStatus::NEW, 'system'));
