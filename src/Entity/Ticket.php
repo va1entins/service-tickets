@@ -13,7 +13,9 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model\Operation;
+use App\Api\DTO\AssignTechnicianInput;
 use App\Api\DTO\ChangeStatusInput;
+use App\Api\Processor\AssignTechnicianProcessor;
 use App\Api\Processor\ChangeStatusProcessor;
 use App\Api\Provider\TicketCollectionProvider;
 use App\Enum\TicketPriority;
@@ -39,6 +41,20 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(),
         new Post(
             security: "is_granted('ROLE_ADMIN')"
+        ),
+        new Post(
+            uriTemplate: '/tickets/{id}/assign',
+            uriVariables: [
+                'id' => new Link(fromClass: Ticket::class, identifiers: ['id']),
+            ],
+            openapi: new Operation(
+                summary: 'Przypisuje technika do zgłoszenia',
+                description: 'Przypisuje aktywnego technika do zgłoszenia o statusie NEW. Zmienia status na ASSIGNED i zapisuje historię.',
+            ),
+            security: "is_granted('ROLE_ADMIN')",
+            input: AssignTechnicianInput::class,
+            name: 'ticket_assign',
+            processor: AssignTechnicianProcessor::class,
         ),
         new Post(
             uriTemplate: '/tickets/{id}/status',
