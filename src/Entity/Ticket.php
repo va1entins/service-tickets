@@ -38,7 +38,9 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(
             provider: TicketCollectionProvider::class
         ),
-        new Get(),
+        new Get(
+            security: "is_granted('TICKET_VIEW', object)"
+        ),
         new Post(
             security: "is_granted('ROLE_ADMIN')"
         ),
@@ -71,10 +73,10 @@ use Symfony\Component\Validator\Constraints as Assert;
             processor: ChangeStatusProcessor::class,
         ),
         new Put(
-            security: "is_granted('ROLE_ADMIN') or (is_granted('ROLE_TECHNICIAN') and object.getAssignedTechnician() != null and object.getAssignedTechnician().getId() == user.getId())"
+            security: "is_granted('TICKET_EDIT', object)"
         ),
         new Patch(
-            security: "is_granted('ROLE_ADMIN') or (is_granted('ROLE_TECHNICIAN') and object.getAssignedTechnician() != null and object.getAssignedTechnician().getId() == user.getId())"
+            security: "is_granted('TICKET_EDIT', object)"
         ),
         new Delete(
             security: "is_granted('ROLE_ADMIN')"
