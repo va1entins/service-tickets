@@ -10,11 +10,13 @@ use App\Api\DTO\ChangeStatusInput;
 use App\Entity\Ticket;
 use App\Entity\TicketHistory;
 use App\Enum\TicketStatus;
+use App\Message\TicketClosedMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Procesor zmiany statusu zgłoszenia z walidacją przejść
@@ -24,6 +26,7 @@ final class ChangeStatusProcessor implements ProcessorInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly Security $security,
+        private readonly MessageBusInterface $bus,
     ) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Ticket
@@ -68,6 +71,18 @@ final class ChangeStatusProcessor implements ProcessorInterface
         $ticket->addHistory($history);
 
         $this->em->flush();
+
+        // Wysyłka wiadomości do Messengera po zamknięciu zgłoszenia
+        if ($newStatus->isFinal()) {
+            $technician = $ticket->getAssignedTechnician();
+            $email = $technician?->getEmail() ?? 'unknown@proassist.pl';
+
+            $this->bus->dispatch(new TicketClosedMessage(
+                ticketId:        $ticket->getId(),
+                technicianEmail: $email,
+                ticketTitle:     $ticket->getTitle(),
+            ));
+        }
 
         return $ticket;
     }
