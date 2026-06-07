@@ -11,6 +11,7 @@ use App\Entity\Ticket;
 use App\Entity\TicketHistory;
 use App\Enum\TicketStatus;
 use App\Message\TicketClosedMessage;
+use App\Repository\TicketRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -24,18 +25,19 @@ use Symfony\Component\Messenger\MessageBusInterface;
 final class ChangeStatusProcessor implements ProcessorInterface
 {
     public function __construct(
+        private readonly TicketRepository       $ticketRepository,
         private readonly EntityManagerInterface $em,
-        private readonly Security $security,
-        private readonly MessageBusInterface $bus,
+        private readonly Security               $security,
+        private readonly MessageBusInterface    $bus,
     ) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Ticket
     {
         /** @var ChangeStatusInput $data */
 
-        $ticket = $this->em->getRepository(Ticket::class)->find($uriVariables['id'] ?? null);
+        $ticket = $this->ticketRepository->find($uriVariables['id'] ?? null);
 
-        if (!$ticket) {
+        if (!$ticket instanceof Ticket) {
             throw new NotFoundHttpException('Zgłoszenie nie zostało znalezione.');
         }
 
@@ -48,34 +50,29 @@ final class ChangeStatusProcessor implements ProcessorInterface
         }
 
         if (!$ticket->getStatus()->canTransitionTo($newStatus)) {
-            throw new ConflictHttpException(
-                sprintf(
-                    'Przejście ze statusu "%s" do "%s" jest niedozwolone.',
-                    $ticket->getStatus()->value,
-                    $newStatus->value
-                )
-            );
+            throw new ConflictHttpException(sprintf(
+                'Przejście ze statusu "%s" do "%s" jest niedozwolone.',
+                $ticket->getStatus()->value,
+                $newStatus->value
+            ));
         }
 
         $oldStatus = $ticket->getStatus();
+        $ticket->setStatus($newStatus);
 
         if ($newStatus->isFinal()) {
             $ticket->setClosedAt(new \DateTimeImmutable());
         }
 
-        $ticket->setStatus($newStatus);
-
         $changedBy = $this->security->getUser()?->getUserIdentifier() ?? 'system';
-
-        $history = new TicketHistory($ticket, $oldStatus, $newStatus, $changedBy);
+        $history   = new TicketHistory($ticket, $oldStatus, $newStatus, $changedBy);
         $ticket->addHistory($history);
 
         $this->em->flush();
 
         // Wysyłka wiadomości do Messengera po zamknięciu zgłoszenia
         if ($newStatus->isFinal()) {
-            $technician = $ticket->getAssignedTechnician();
-            $email = $technician?->getEmail() ?? 'unknown@proassist.pl';
+            $email = $ticket->getAssignedTechnician()?->getEmail() ?? 'unknown@proassist.pl';
 
             $this->bus->dispatch(new TicketClosedMessage(
                 ticketId:        $ticket->getId(),

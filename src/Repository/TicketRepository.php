@@ -56,7 +56,6 @@ class TicketRepository extends ServiceEntityRepository
                ->setParameter('serial', '%' . $filters['serialNumber'] . '%');
         }
 
-        // Dozwolone pola sortowania (whitelist — ochrona przed SQL injection)
         $allowedSortFields = ['t.createdAt', 't.updatedAt', 't.priority', 't.status'];
         $sortBy  = $filters['sortBy']  ?? 't.createdAt';
         $sortDir = strtoupper($filters['sortDir'] ?? 'DESC');

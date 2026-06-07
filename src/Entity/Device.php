@@ -24,7 +24,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[ORM\Entity(repositoryClass: DeviceRepository::class)]
 #[ORM\Table(name: 'devices')]
-#[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(fields: ['serialNumber'], message: 'Urządzenie z tym numerem seryjnym już istnieje.')]
 #[ApiResource(
     operations: [
