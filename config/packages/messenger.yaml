@@ -11,8 +11,7 @@ framework:
             sync: 'sync://'
 
         routing:
-        # Tutaj kieruj swoje klasy wiadomości do transportu async
-        # 'App\Message\YourMessage': async
+            App\Message\TicketClosedMessage: async
 
 # when@test:
 #    framework:
