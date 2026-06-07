@@ -14,7 +14,9 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model\Operation;
 use App\Api\DTO\AssignTechnicianInput;
+use App\Api\DTO\ChangeStatusInput;
 use App\Api\Processor\AssignTechnicianProcessor;
+use App\Api\Processor\ChangeStatusProcessor;
 use App\Api\Provider\TicketCollectionProvider;
 use App\Enum\TicketPriority;
 use App\Enum\TicketStatus;
@@ -53,6 +55,20 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: AssignTechnicianInput::class,
             name: 'ticket_assign',
             processor: AssignTechnicianProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/tickets/{id}/status',
+            uriVariables: [
+                'id' => new Link(fromClass: Ticket::class, identifiers: ['id']),
+            ],
+            openapi: new Operation(
+                summary: 'Zmienia status zgłoszenia',
+                description: 'Waliduje przejście statusu zgodnie z dozwolonym workflowem i zapisuje historię zmian.',
+            ),
+            security: "is_granted('ROLE_ADMIN') or is_granted('ROLE_TECHNICIAN')",
+            input: ChangeStatusInput::class,
+            name: 'ticket_change_status',
+            processor: ChangeStatusProcessor::class,
         ),
         new Put(
             security: "is_granted('ROLE_ADMIN') or (is_granted('ROLE_TECHNICIAN') and object.getAssignedTechnician() != null and object.getAssignedTechnician().getId() == user.getId())"
