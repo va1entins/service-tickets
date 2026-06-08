@@ -20,6 +20,8 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 /**
  * Processor obsługujący przypisanie technika do zgłoszenia
+ *
+ * @implements ProcessorInterface<AssignTechnicianInput, Ticket>
  */
 final class AssignTechnicianProcessor implements ProcessorInterface
 {

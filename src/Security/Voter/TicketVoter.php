@@ -12,14 +12,16 @@ use Symfony\Component\Security\Core\User\UserInterface;
 /**
  * Voter kontrolujący dostęp do zgłoszeń serwisowych.
  *
+ * @extends Voter<string, Ticket>
+ *
  * Obsługiwane atrybuty:
  *   - VIEW: każdy zalogowany użytkownik
  *   - EDIT: admin lub technik przypisany do zgłoszenia
  */
 class TicketVoter extends Voter
 {
-    public const VIEW = 'TICKET_VIEW';
-    public const EDIT = 'TICKET_EDIT';
+    public const string VIEW = 'TICKET_VIEW';
+    public const string EDIT = 'TICKET_EDIT';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
