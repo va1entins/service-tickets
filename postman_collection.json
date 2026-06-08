@@ -1,0 +1,225 @@
+{
+    "info": {
+        "name": "Service Tickets API",
+        "description": "Mini system zarządzania zgłoszeniami serwisowymi — Proassist recruitment task",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        { "key": "base_url", "value": "http://localhost:8080" },
+        { "key": "admin_user", "value": "admin" },
+        { "key": "admin_pass", "value": "admin123" },
+        { "key": "tech_user", "value": "tech1" },
+        { "key": "tech_pass", "value": "tech123" }
+    ],
+    "item": [
+        {
+            "name": "Tickets",
+            "item": [
+                {
+                    "name": "List all tickets",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "url": { "raw": "{{base_url}}/api/tickets", "host": ["{{base_url}}"], "path": ["api", "tickets"] }
+                    }
+                },
+                {
+                    "name": "Filter by status",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "url": {
+                            "raw": "{{base_url}}/api/tickets?status=NEW",
+                            "host": ["{{base_url}}"], "path": ["api", "tickets"],
+                            "query": [{ "key": "status", "value": "NEW" }]
+                        }
+                    }
+                },
+                {
+                    "name": "Filter by priority",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "url": {
+                            "raw": "{{base_url}}/api/tickets?priority=HIGH",
+                            "host": ["{{base_url}}"], "path": ["api", "tickets"],
+                            "query": [{ "key": "priority", "value": "HIGH" }]
+                        }
+                    }
+                },
+                {
+                    "name": "Filter by serialNumber",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "url": {
+                            "raw": "{{base_url}}/api/tickets?serialNumber=SN-2024-001",
+                            "host": ["{{base_url}}"], "path": ["api", "tickets"],
+                            "query": [{ "key": "serialNumber", "value": "SN-2024-001" }]
+                        }
+                    }
+                },
+                {
+                    "name": "Sorting",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "url": {
+                            "raw": "{{base_url}}/api/tickets?sort=createdAt&order=ASC",
+                            "host": ["{{base_url}}"], "path": ["api", "tickets"],
+                            "query": [{ "key": "sort", "value": "createdAt" }, { "key": "order", "value": "ASC" }]
+                        }
+                    }
+                },
+                {
+                    "name": "Pagination",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "url": {
+                            "raw": "{{base_url}}/api/tickets?page=1&limit=2",
+                            "host": ["{{base_url}}"], "path": ["api", "tickets"],
+                            "query": [{ "key": "page", "value": "1" }, { "key": "limit", "value": "2" }]
+                        }
+                    }
+                },
+                {
+                    "name": "Get single ticket",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "url": { "raw": "{{base_url}}/api/tickets/1", "host": ["{{base_url}}"], "path": ["api", "tickets", "16"] }
+                    }
+                },
+                {
+                    "name": "Create new ticket",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Awaria drukarki laserowej\",\n  \"description\": \"Drukarka nie pobiera papieru z podajnika głównego, komunikat błędu E02.\",\n  \"priority\": \"HIGH\",\n  \"device\": \"/api/devices/1\"\n}"
+                        },
+                        "url": { "raw": "{{base_url}}/api/tickets", "host": ["{{base_url}}"], "path": ["api", "tickets"] }
+                    }
+                },
+                {
+                    "name": "Assign technician",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"technicianId\": 16\n}"
+                        },
+                        "url": { "raw": "{{base_url}}/api/tickets/1/assign", "host": ["{{base_url}}"], "path": ["api", "tickets", "16", "assign"] }
+                    }
+                },
+                {
+                    "name": "Change status",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
+                        },
+                        "url": { "raw": "{{base_url}}/api/tickets/1/status", "host": ["{{base_url}}"], "path": ["api", "tickets", "16", "status"] }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Devices",
+            "item": [
+                {
+                    "name": "List all devices",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "url": { "raw": "{{base_url}}/api/devices", "host": ["{{base_url}}"], "path": ["api", "devices"] }
+                    }
+                },
+                {
+                    "name": "Create new device",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"serialNumber\": \"SN-2024-099\",\n  \"model\": \"HP LaserJet Pro M404dn\",\n  \"customerName\": \"Firma XYZ Sp. z o.o.\"\n}"
+                        },
+                        "url": { "raw": "{{base_url}}/api/devices", "host": ["{{base_url}}"], "path": ["api", "devices"] }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Technicians",
+            "item": [
+                {
+                    "name": "List all technicians",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "url": { "raw": "{{base_url}}/api/technicians", "host": ["{{base_url}}"], "path": ["api", "technicians"] }
+                    }
+                },
+                {
+                    "name": "Create new technician",
+                    "request": {
+                        "method": "POST",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"firstName\": \"Piotr\",\n  \"lastName\": \"Nowak\",\n  \"email\": \"piotr.nowak@serwis.pl\",\n  \"active\": true\n}"
+                        },
+                        "url": { "raw": "{{base_url}}/api/technicians", "host": ["{{base_url}}"], "path": ["api", "technicians"] }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Reports",
+            "item": [
+                {
+                    "name": "Technicians performance",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "url": { "raw": "{{base_url}}/api/reports/technicians-performance", "host": ["{{base_url}}"], "path": ["api", "reports", "technicians-performance"] }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Ticket History",
+            "item": [
+                {
+                    "name": "List ticket histories",
+                    "request": {
+                        "method": "GET",
+                        "header": [{ "key": "Content-Type", "value": "application/ld+json" }],
+                        "auth": { "type": "basic", "basic": [{ "key": "username", "value": "{{admin_user}}" }, { "key": "password", "value": "{{admin_pass}}" }] },
+                        "url": { "raw": "{{base_url}}/api/ticket_histories", "host": ["{{base_url}}"], "path": ["api", "ticket_histories"] }
+                    }
+                }
+            ]
+        }
+    ]
+}
