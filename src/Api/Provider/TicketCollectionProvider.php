@@ -7,6 +7,7 @@ namespace App\Api\Provider;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use ApiPlatform\Doctrine\Orm\Paginator;
+use App\Entity\Ticket;
 use App\Enum\TicketPriority;
 use App\Enum\TicketStatus;
 use App\Repository\TicketRepository;
@@ -15,12 +16,14 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Dostawca kolekcji zgłoszeń serwisowych z filtrowaniem, sortowaniem i paginacją
+ *
+ * @implements ProviderInterface<Paginator<Ticket>>
  */
 final class TicketCollectionProvider implements ProviderInterface
 {
-    private const DEFAULT_PAGE  = 1;
-    private const DEFAULT_LIMIT = 10;
-    private const MAX_LIMIT     = 100;
+    private const int DEFAULT_PAGE  = 1;
+    private const int DEFAULT_LIMIT = 10;
+    private const int MAX_LIMIT     = 100;
 
     public function __construct(
         private readonly TicketRepository $ticketRepository,
@@ -29,6 +32,8 @@ final class TicketCollectionProvider implements ProviderInterface
 
     /**
      * Zwraca przefiltrowaną i spaginowaną kolekcję zgłoszeń
+     *
+     * @return Paginator<Ticket>|array<Ticket>
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): Paginator|array
     {
@@ -64,7 +69,6 @@ final class TicketCollectionProvider implements ProviderInterface
     {
         $filters = [];
 
-        // Filtr po statusie
         if (!empty($query['status'])) {
             $status = TicketStatus::tryFrom(strtoupper((string) $query['status']));
             if ($status !== null) {
@@ -72,7 +76,6 @@ final class TicketCollectionProvider implements ProviderInterface
             }
         }
 
-        // Filtr po priorytecie
         if (!empty($query['priority'])) {
             $priority = TicketPriority::tryFrom(strtoupper((string) $query['priority']));
             if ($priority !== null) {
@@ -80,12 +83,10 @@ final class TicketCollectionProvider implements ProviderInterface
             }
         }
 
-        // Wyszukiwanie po numerze seryjnym urządzenia
         if (!empty($query['serialNumber'])) {
             $filters['serialNumber'] = (string) $query['serialNumber'];
         }
 
-        // Sortowanie — mapowanie zewnętrznych nazw pól na wewnętrzne
         $sortMap = [
             'createdAt' => 't.createdAt',
             'updatedAt' => 't.updatedAt',
