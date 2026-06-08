@@ -26,6 +26,21 @@ docker compose exec php php bin/console doctrine:fixtures:load --no-interaction
 
 > The application will be available at **http://localhost:8080**
 
+## Makefile Commands
+
+```bash
+make up          # start Docker containers
+make down        # stop Docker containers
+make restart     # restart all containers
+make bash        # open bash in PHP container
+make logs        # follow container logs
+make migrate     # run database migrations
+make fixtures    # load seed data
+make cache       # clear application cache
+make routes      # list registered routes
+make messenger   # list Messenger handlers
+```
+
 ## API Endpoints
 
 | Method | Path | Description |
