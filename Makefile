@@ -41,3 +41,7 @@ routes:
 ## Wyświetla zarejestrowane handlery Messengera
 messenger:
 	$(PHP) php bin/console debug:messenger
+
+## Uruchamia analizę statyczną PHPStan
+phpstan:
+	$(PHP) vendor/bin/phpstan analyse --memory-limit=512M

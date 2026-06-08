@@ -21,6 +21,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Procesor zmiany statusu zgłoszenia z walidacją przejść
+ *
+ * @implements ProcessorInterface<ChangeStatusInput, Ticket>
  */
 final class ChangeStatusProcessor implements ProcessorInterface
 {
@@ -70,7 +72,6 @@ final class ChangeStatusProcessor implements ProcessorInterface
 
         $this->em->flush();
 
-        // Wysyłka wiadomości do Messengera po zamknięciu zgłoszenia
         if ($newStatus->isFinal()) {
             $email = $ticket->getAssignedTechnician()?->getEmail() ?? 'unknown@proassist.pl';
 

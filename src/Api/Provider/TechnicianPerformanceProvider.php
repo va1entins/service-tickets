@@ -12,6 +12,8 @@ use App\Repository\TechnicianRepository;
 /**
  * Provider dla raportu wydajności techników.
  * Deleguje zapytanie SQL do repozytorium — bez N+1.
+ *
+ * @implements ProviderInterface<TechnicianPerformanceOutput>
  */
 final class TechnicianPerformanceProvider implements ProviderInterface
 {
@@ -26,7 +28,6 @@ final class TechnicianPerformanceProvider implements ProviderInterface
     {
         $rows = $this->technicianRepository->findPerformanceStats();
 
-        // Mapowanie wyników na DTO
         return array_map(static function (array $row): TechnicianPerformanceOutput {
             $dto = new TechnicianPerformanceOutput();
             $dto->technicianId            = (int) $row['technician_id'];
