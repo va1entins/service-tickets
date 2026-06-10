@@ -20,8 +20,7 @@ Mini service ticket management system built with Symfony 7.4 + API Platform 4.
 git clone https://github.com/va1entins/service-tickets.git
 cd service-tickets
 docker compose up -d
-docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
-docker compose exec php php bin/console doctrine:fixtures:load --no-interaction
+make init
 ```
 
 > The application will be available at **http://localhost:8080**
@@ -31,15 +30,34 @@ docker compose exec php php bin/console doctrine:fixtures:load --no-interaction
 ```bash
 make up          # start Docker containers
 make down        # stop Docker containers
+make down-v      # stop containers and remove volumes (reset database)
 make restart     # restart all containers
 make bash        # open bash in PHP container
 make logs        # follow container logs
 make migrate     # run database migrations
 make fixtures    # load seed data
+make init        # run migrations + load fixtures
 make cache       # clear application cache
 make routes      # list registered routes
 make messenger   # list Messenger handlers
+make phpstan     # run PHPStan static analysis (level 6)
 ```
+
+## CI/CD
+
+GitHub Actions pipeline runs automatically on every push and pull request to `main` and `develop`.
+
+Pipeline jobs:
+- **PHPStan** — static analysis level 6
+
+## Postman Collection
+
+Import `postman_collection.json` into Postman.
+
+Set collection variables:
+- `base_url` = `http://localhost:8080`
+- `admin_user` = `admin`
+- `admin_pass` = `admin123`
 
 ## API Endpoints
 

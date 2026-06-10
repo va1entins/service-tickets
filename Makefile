@@ -1,7 +1,7 @@
 # Zmienna skracająca wywołanie poleceń w kontenerze PHP
 PHP = docker compose exec php
 
-.PHONY: up down restart bash logs migrate fixtures cache routes messenger
+.PHONY: up down down-v restart bash logs migrate fixtures cache routes messenger phpstan init
 
 ## Uruchamia kontenery w tle
 up:
@@ -10,6 +10,10 @@ up:
 ## Zatrzymuje i usuwa kontenery
 down:
 	docker compose down
+
+## Zatrzymuje kontenery i usuwa wolumeny (resetuje bazę danych)
+down-v:
+	docker compose down -v
 
 ## Restartuje wszystkie kontenery
 restart: down up
@@ -30,6 +34,9 @@ migrate:
 fixtures:
 	$(PHP) php bin/console doctrine:fixtures:load --no-interaction
 
+## Pełna inicjalizacja projektu po klonowaniu (migracje + fixtures)
+init: migrate fixtures
+
 ## Czyści cache aplikacji
 cache:
 	$(PHP) php bin/console cache:clear
@@ -45,3 +52,4 @@ messenger:
 ## Uruchamia analizę statyczną PHPStan
 phpstan:
 	$(PHP) vendor/bin/phpstan analyse --memory-limit=512M
+

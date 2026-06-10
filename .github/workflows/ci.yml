@@ -1,0 +1,57 @@
+# Plik konfiguracyjny CI/CD dla GitHub Actions
+name: CI
+
+# Uruchamiaj pipeline przy każdym push i pull_request do main i develop
+on:
+    push:
+        branches: [ main, develop ]
+    pull_request:
+        branches: [ main, develop ]
+
+jobs:
+    phpstan:
+        runs-on: ubuntu-latest
+
+        steps:
+            # Pobierz kod źródłowy repozytorium
+            - name: Checkout kodu
+              uses: actions/checkout@v4
+
+            # Skonfiguruj PHP 8.3 z wymaganymi rozszerzeniami
+            - name: Konfiguracja PHP 8.3
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.3'
+                  extensions: ctype, iconv, intl
+                  coverage: none
+
+            # Oblicz hash pliku composer.lock do cache
+            - name: Pobierz hash composer.lock
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+            # Cachuj zależności Composera na podstawie composer.lock
+            - name: Cache zależności Composera
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: |
+                      ${{ runner.os }}-composer-
+
+            # Zainstaluj zależności bez skryptów (unikamy błędów bez bazy danych)
+            - name: Instalacja zależności Composera
+              run: composer install --prefer-dist --no-progress --no-scripts
+
+            # Rozgrzej cache Symfony w środowisku testowym (generuje kontener DI dla PHPStan)
+            - name: Warmup cache Symfony (APP_ENV=test)
+              env:
+                  APP_ENV: test
+                  APP_SECRET: ci_secret_for_cache_warmup
+              run: php bin/console cache:warmup --env=test
+
+            # Uruchom analizę statyczną PHPStan na poziomie 6
+            - name: Uruchom PHPStan (level 6)
+              env:
+                  APP_ENV: test
+              run: vendor/bin/phpstan analyse --configuration=phpstan.ci.neon --memory-limit=256M
