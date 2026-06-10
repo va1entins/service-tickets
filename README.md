@@ -41,6 +41,23 @@ make routes      # list registered routes
 make messenger   # list Messenger handlers
 ```
 
+## Code Quality
+
+```bash
+make phpstan      # run PHPStan static analysis (level 6)
+```
+
+PHPStan level 6 — zero errors.
+
+## Postman Collection
+
+Import `postman_collection.json` into Postman.
+
+Set collection variables:
+- `base_url` = `http://localhost:8080`
+- `admin_user` = `admin`
+- `admin_pass` = `admin123`
+
 ## API Endpoints
 
 | Method | Path | Description |
